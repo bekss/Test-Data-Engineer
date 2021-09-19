@@ -104,6 +104,7 @@ class Sql_Test:
             else:
                 print('В Mysql таблица {} и {} уже существует. Пожалуйста выберите другое имя'.format(table_name1,
                                                                                                       table_name1 + '1'))
+
         elif sql_server == "postgresql":
             table = self.postgres_engine.execute(
                 "select exists (select * from information_schema.tables where table_name = '{}' and table_schema = 'public');".format(
@@ -144,10 +145,19 @@ class Sql_Test:
                      max_value: int,
                      max_row: int,
                      unique_count_value: int):
+        """
+        Insert to Mysql SQL server a data
+        :param table_name_to_insert:
+        :param max_value:
+        :param max_row:
+        :param unique_count_value:
+        :return:
+        """
 
         values_to_insert = [[None]] * 2
         old = [random.randint(0, max_value) for _ in range(max_row - unique_count_value)]
         values_to_insert[0] = old
+
         new_not_insert = [random.randint(0, max_value) for _ in range(unique_count_value)]
         # second_list = list()
         second_query = self.mysql_engine.execute("select number from {}".format(table_name_to_insert))
@@ -180,6 +190,14 @@ class Sql_Test:
                      max_value: int,
                      max_row: int,
                      unique_count_value: int):
+        """
+        Insert to Postgresql SQL server a data
+        :param table_name_to_insert:
+        :param max_value:
+        :param max_row:
+        :param unique_count_value:
+        :return:
+        """
 
         values_to_insert = [[None]] * 2
         old = [random.randint(0, max_value) for _ in range(max_row - unique_count_value)]
@@ -217,6 +235,14 @@ class Sql_Test:
                      max_value: int,
                      max_row: int,
                      unique_count_value: int):
+        """
+        Insert to MSSQL SQL server a data
+        :param table_name_to_insert:
+        :param max_value:
+        :param max_row:
+        :param unique_count_value:
+        :return:
+        """
         values_to_insert = [[None]] * 2
         old = [random.randint(0, max_value) for _ in range(max_row - unique_count_value)]
         values_to_insert[0] = old
@@ -248,6 +274,50 @@ class Sql_Test:
             after = time()
             self.mssql_engine.execute("CREATE INDEX number_index ON {} (id, number);".format(table_name_to_insert))
             print("Время исполнения вставки в MSSQL  ", after - before, "s")
+
+    def select_count_table(self, table_name):
+        """
+        To find the count column number
+        :param table_name:
+        :return:
+        """
+        before = time("select count(*) from {}".format(table_name))
+        self.mssql_engine.execute()
+        after = time()
+        print("Время исполнения запроса в MSSQL  ", after - before, "s")
+
+        before = time()
+        self.mysql_engine.execute("select count(*) from {}".format(table_name))
+        after = time()
+        print("Время исполнения запроса в Mysql  ", after - before, "s")
+
+        before = time()
+        self.postgres_engine.execute("select count(*) from {}".format(table_name))
+        after = time()
+        print("Время исполнения запроса в Postgres  ", after - before, "s")
+
+    def select_max_table(self, table_name, column_name=None):
+        """
+        To find the max value
+        Dont work a column choose.
+        :param table_name:
+        :return:
+        """
+        before = time("select max(number) from {}".format(table_name))
+        self.mssql_engine.execute()
+        after = time()
+        print("Время исполнения запроса в MSSQL  ", after - before, "s")
+
+        before = time()
+        self.mysql_engine.execute("select max(number) from {}".format(table_name))
+        after = time()
+        print("Время исполнения запроса в Mysql  ", after - before, "s")
+
+        before = time()
+        self.postgres_engine.execute("select max(number) from {}".format(table_name))
+        after = time()
+        print("Время исполнения запроса в Postgres  ", after - before, "s")
+
 
     def time_thing(self, connect_to_database, des="Отправка запроса на MSSQL SERVER начало времени"):
         print("Running %s " % des, time.time())
