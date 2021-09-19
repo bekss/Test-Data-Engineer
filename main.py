@@ -318,8 +318,58 @@ class Sql_Test:
         after = time()
         print("Время исполнения запроса в Postgres  ", after - before, "s")
 
+    def select_from_to(self, value_from, value_to, table_name, table_column=None):
+        """
+        The table_column dont work!!!
+        To get value from and to
+        :param value_from:
+        :param value_to:
+        :param table_name:
+        :return:
+        """
+        before = time
+        self.mssql_engine.execute("select * from {} where number between {} and {}".format(table_name, value_from, value_to))
+        after = time()
+        print("Время исполнения запроса между значениями в MSSQL  ", after - before, "s")
+
+        before = time()
+        self.mysql_engine.execute("select * from {} where number between {} and {}".format(table_name, value_from, value_to))
+        after = time()
+        print("Время исполнения запроса между значениями в Mysql  ", after - before, "s")
+
+        before = time()
+        self.postgres_engine.execute("select * from {} where number between {} and {}".format(table_name, value_from, value_to))
+        after = time()
+        print("Время исполнения запроса между значениями в Postgres  ", after - before, "s")
+
+    def select_number_where(self, table_name, value):
+        """
+        Select where column name = value
+        :param table_name:
+        :return:
+        """
+        before = time
+        self.mssql_engine.execute("select * from {} where number ={}".format(table_name, value))
+        after = time()
+        print("Время исполнения запроса  в MSSQL  ", after - before, "s")
+
+        before = time()
+        self.mysql_engine.execute("select * from {} where number =  {}".format(table_name, value))
+        after = time()
+        print("Время исполнения запроса в Mysql  ", after - before, "s")
+
+        before = time()
+        self.postgres_engine.execute("select * from {} where number= {}".format(table_name, value))
+        after = time()
+        print("Время исполнения запроса в Postgres  ", after - before, "s")
 
     def time_thing(self, connect_to_database, des="Отправка запроса на MSSQL SERVER начало времени"):
+        """
+        dont work!!!!
+        :param connect_to_database:
+        :param des:
+        :return:
+        """
         print("Running %s " % des, time.time())
         now = time.time()
 
@@ -329,6 +379,22 @@ class Sql_Test:
         finally:
             spent = time.time() - now
             print("Finished %s, took %d seconds" % (des, spent))
+
+    def in_both_table_number(self,table_name1, table_name2):
+        before = time
+        self.mssql_engine.execute("select *from {} as d, {} as t where d.number = t.number".format(table_name1,table_name2))
+        after = time()
+        print("Время исполнения запроса  в MSSQL  ", after - before, "s")
+
+        before = time()
+        self.mysql_engine.execute("select *from {} as d, {} as t where d.number = t.number".format(table_name1,table_name2))
+        after = time()
+        print("Время исполнения запроса в Mysql  ", after - before, "s")
+
+        before = time()
+        self.postgres_engine.execute("select *from {} as d, {} as t where d.number = t.number".format(table_name1,table_name2))
+        after = time()
+        print("Время исполнения запроса в Postgres  ", after - before, "s")
 
     def choose_sql_server_name(self, sql_server_name, sql_server_name2=None):
         """
@@ -347,7 +413,7 @@ class Sql_Test:
 if __name__ == '__main__':
     server = Sql_Test()
     # server.create_table_for_all_server(sql_server='mysql', table_name1='sam', max_value=10000, max_row=100,unique_count_value=10)
-    # server.create_table_for_all_server(sql_server='postgresql', table_name1='dam', max_value=10000, max_row=100,unique_count_value=10)
+    server.create_table_for_all_server(sql_server='postgresql', table_name1='dam', max_value=10000, max_row=100,unique_count_value=10)
     # server.create_table_for_all_server(sql_server='mssql', table_name1='dam', max_value=10000, max_row=100,unique_count_value=10)
 
     # server.insert_psql('famile')
