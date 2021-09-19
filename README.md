@@ -1,8 +1,26 @@
 Тестовое задание на позицию Test Data Engineer.
 
-###  Settings for MSSQL SERVER:
-create_engine(‘mssql+pyodbc://server_name/database_name?driver=SQL Server?Trusted_Connection=yes’)
-server_name : server you want to connect to
-database_name : database you want to work with
-Trusted_Connection = yes, when using windows authentication. If you have set a separate username and password for your SQL database,
-sal.create_engine(‘dialect+driver://username:password@host:port/database’)
+### pipenv  
+##### pip install pipenv  
+##### pipenv shell
+##### pipenv lock
+##### pipenv sync
+## Нужно настороить окружение .env
+DATABASE = <your own database>
+HOST = <your own host > #default  127.0.0.1
+
+
+MSSQL_USER = <your own user>
+MSSQL_PASSWORD = <your own password>
+MSSQL_PORT = <your own port>            # default 1433
+MSSQL_SERVER_NAME = <your own server name>
+
+PSQL_USER = <your own user>
+PSQL_PASSWORD = <your own password>
+PSQL_PORT = <your own port>             # default 5434
+
+
+MYSQL_USER = <your own user>
+MYSQL_PASSWORD = <your own password>
+MYSQL_PORT = <your own port>            #default 3306
+
