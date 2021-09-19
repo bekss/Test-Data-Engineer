@@ -35,9 +35,8 @@ class Sql_Test:
             mssql_engine = db.create_engine(
                 f'mssql+pyodbc://{mssql_server_name}/{database}?driver=ODBC Driver 17 for SQL Server')
         if mssql_engine.connect():
-            result = mssql_engine.execute("select *from famile where name = 'beksultan'")
-            for row in result:
-                print(row)
+            print('Успешно соединено')
+
 
     def connect_to_postgres_server(self):
         """
@@ -52,19 +51,7 @@ class Sql_Test:
                     psql_user, psql_password))
 
         if self.postgres_engine.connect():
-            postgres_result = self.postgres_engine.execute("EXPLAIN ANALYZE select *from users")
-            c = 0
-            for row in postgres_result:
-                if c == 2:
-                    a = list()
-                    a.append(row)
-                    d = dict(a[0])
-                    print(d['QUERY PLAN'])
-                c += 1
-                # a = list(row)
-                # print(postgres_result)
-                # print(dict(row))
-            # query = postgres_engine.execute("")
+            print('Успешно соединено')
 
     def connect_to_mysql_server(self):
         """
@@ -79,9 +66,7 @@ class Sql_Test:
                 "Ваш пароль {} или пароль {} и.т.др не верны. Пожалуйста насторойте конфигурационный файл ".format(
                     mysql_user, mysql_password))
         if self.mysql_engine.connect():
-            postgres_result = self.mysql_engine.execute("select *from famile")
-            for result in postgres_result:
-                print(result)
+            print('Успешно соединено')
 
     def create_table_for_all_server(self, max_row: int = None,
                                     max_value: int = None,
@@ -91,12 +76,11 @@ class Sql_Test:
         if sql_server == "mysql":
             table = self.mysql_engine.execute(" SHOW TABLES FROM data LIKE '{}'".format(table_name1))
             exists_table = list(table)
-            # print(len(exists_table))
 
             if len(exists_table) == 0 and table_name1 != exists_table:
-                mysql_result = self.mysql_engine.execute(
+                self.mysql_engine.execute(
                     "create table {} (id int primary key not null  AUTO_INCREMENT, number bigint(10) not null);".format(table_name1))
-                mysql_result = self.mysql_engine.execute(
+                self.mysql_engine.execute(
                     "create table {} (id int primary key not null  AUTO_INCREMENT, number bigint(10) not null);".format(table_name1 +'1'))
                 print("Успешно созданы ваши таблицы  {} и {} ".format(table_name1, table_name1 + '1'))
 
@@ -124,15 +108,13 @@ class Sql_Test:
         elif "mssql" in sql_server:
             pyodbc.pooling = False
 
-            # tablee = self.mssql_engine.execute(
-            #     "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = N'fafmile') BEGIN PRINT 'Table Exists' END")
             table = self.mssql_engine.table_names()
             print(table)
             check = sorted(set([table_name1]) - set(table))
             if check:
-                mssql_result = self.mssql_engine.execute(
+                self.mssql_engine.execute(
                     "create table  {} (id int IDENTITY(1,1) PRIMARY KEY,number bigint not null);".format(table_name1))
-                mssql_result = self.mssql_engine.execute(
+                self.mssql_engine.execute(
                     "create table {} (id int IDENTITY(1,1) PRIMARY KEY,number bigint not null);".format(table_name1 + '1'))
                 print("Успешно созданы ваши таблицы  {} и {} ".format(table_name1, table_name1 + '1'))
                 self.insert_mssql(table_name1, max_value, max_row, unique_count_value)
@@ -159,29 +141,25 @@ class Sql_Test:
         values_to_insert[0] = old
 
         new_not_insert = [random.randint(0, max_value) for _ in range(unique_count_value)]
-        # second_list = list()
         second_query = self.mysql_engine.execute("select number from {}".format(table_name_to_insert))
         if not list(second_query):
-            # for row in second_query:
-            #     # print(row[0])
-            #     second_list.append(row[0])
             values_to_insert[1] = sorted(set(new_not_insert) - set(values_to_insert[0]))
-            print(values_to_insert[0])
             print("Уникальные значения: ", values_to_insert[1])
 
             before = time()
             for count in range(len(values_to_insert[0])):
-                mysql_result = self.mysql_engine.execute(
-                    "insert  {} (number) values ('{}')".format(table_name_to_insert, values_to_insert[0][count]))
-                mysql_result = self.mysql_engine.execute(
-                    "insert  {} (number) values ('{}')".format(table_name_to_insert + '1',
-                                                                   values_to_insert[0][count]))
+                self.mysql_engine.execute(
+                "insert  {} (number) values ('{}')".format(table_name_to_insert, values_to_insert[0][count]))
+
+                self.mysql_engine.execute(
+                "insert  {} (number) values ('{}')".format(table_name_to_insert + '1',
+                    values_to_insert[0][count]))
+
             for count in range(len(values_to_insert[1])):
-                mysql_result1 = self.mysql_engine.execute(
-                    "insert  {} (number ) values ('{}')".format(table_name_to_insert + '1',
-                                                                    values_to_insert[1][count]))
-                mysql_result1 = self.mysql_engine.execute(
-                    "insert {} (number ) values ('{}')".format(table_name_to_insert, values_to_insert[1][count]))
+                self.mysql_engine.execute(
+                "insert  {} (number ) values ('{}')".format(table_name_to_insert + '1', values_to_insert[1][count]))
+                self.mysql_engine.execute("insert {} (number ) values ('{}')".format(table_name_to_insert, values_to_insert[1][count]))
+
             after = time()
             print("Время исполнения вставки в Mysql", after - before, "s")
             self.mysql_engine.execute("CREATE INDEX number_index ON {} (id, number);".format(table_name_to_insert))
@@ -203,30 +181,19 @@ class Sql_Test:
         old = [random.randint(0, max_value) for _ in range(max_row - unique_count_value)]
         values_to_insert[0] = old
         new_not_insert = [random.randint(0, max_value) for _ in range(unique_count_value)]
-        # second_list = list()
         second_query = self.postgres_engine.execute("select number from {}".format(table_name_to_insert))
-        print(list(second_query))
         if not list(second_query):
-            # for row in second_query:
-            #     # print(row[0])
-            #     second_list.append(row[0])
             values_to_insert[1] = sorted(set(new_not_insert) - set(values_to_insert[0]))
-            print(values_to_insert[0])
             print("Уникальные значения: ", values_to_insert[1])
 
             before = time()
             for count in range(len(values_to_insert[0])):
-                mysql_result = self.postgres_engine.execute(
-                    "insert into {} (number) values ('{}')".format(table_name_to_insert, values_to_insert[0][count]))
-                mysql_result = self.postgres_engine.execute(
-                    "insert into {} (number) values ('{}')".format(table_name_to_insert + '1',
-                                                                   values_to_insert[0][count]))
+                self.postgres_engine.execute("insert into {} (number) values ('{}')".format(table_name_to_insert, values_to_insert[0][count]))
+                self.postgres_engine.execute("insert into {} (number) values ('{}')".format(table_name_to_insert + '1',values_to_insert[0][count]))
             for count in range(len(values_to_insert[1])):
-                mysql_result1 = self.postgres_engine.execute(
-                    "insert into {} (number ) values ('{}')".format(table_name_to_insert + '1',
-                                                                    values_to_insert[1][count]))
-                mysql_result1 = self.postgres_engine.execute(
-                    "insert into {} (number ) values ('{}')".format(table_name_to_insert, values_to_insert[1][count]))
+                self.postgres_engine.execute("insert into {} (number ) values ('{}')".format(table_name_to_insert + '1',values_to_insert[1][count]))
+                self.postgres_engine.execute("insert into {} (number ) values ('{}')".format(table_name_to_insert, values_to_insert[1][count]))
+
             after = time()
             self.postgres_engine.execute("CREATE INDEX number_index ON {} ( id, number);".format(table_name_to_insert))
             print("Время исполнения вставки в Postgresql ", after - before, "s")
@@ -247,30 +214,18 @@ class Sql_Test:
         old = [random.randint(0, max_value) for _ in range(max_row - unique_count_value)]
         values_to_insert[0] = old
         new_not_insert = [random.randint(0, max_value) for _ in range(unique_count_value)]
-        second_list = list()
         second_query = self.mssql_engine.execute("select number from {}".format(table_name_to_insert))
-        print(list(second_query))
         if not list(second_query):
-            # for row in second_query:
-            #     # print(row[0])
-            #     second_list.append(row[0])
             values_to_insert[1] = sorted(set(new_not_insert) - set(values_to_insert[0]))
-            print(values_to_insert[0])
             print("Уникальные значения: ", values_to_insert[1])
 
             before = time()
             for count in range(len(values_to_insert[0])):
-                mysql_result = self.mssql_engine.execute(
-                    "insert into {} (number) values ('{}')".format(table_name_to_insert, values_to_insert[0][count]))
-                mysql_result = self.mssql_engine.execute(
-                    "insert into {} (number) values ('{}')".format(table_name_to_insert + '1',
-                                                                   values_to_insert[0][count]))
+                self.mssql_engine.execute("insert into {} (number) values ('{}')".format(table_name_to_insert, values_to_insert[0][count]))
+                self.mssql_engine.execute("insert into {} (number) values ('{}')".format(table_name_to_insert + '1',values_to_insert[0][count]))
             for count in range(len(values_to_insert[1])):
-                mysql_result1 = self.mssql_engine.execute(
-                    "insert into {} (number ) values ('{}')".format(table_name_to_insert + '1',
-                                                                    values_to_insert[1][count]))
-                mysql_result1 = self.mssql_engine.execute(
-                    "insert into {} (number ) values ('{}')".format(table_name_to_insert, values_to_insert[1][count]))
+                self.mssql_engine.execute("insert into {} (number ) values ('{}')".format(table_name_to_insert + '1',values_to_insert[1][count]))
+                self.mssql_engine.execute("insert into {} (number ) values ('{}')".format(table_name_to_insert, values_to_insert[1][count]))
             after = time()
             self.mssql_engine.execute("CREATE INDEX number_index ON {} (id, number);".format(table_name_to_insert))
             print("Время исполнения вставки в MSSQL  ", after - before, "s")
@@ -330,17 +285,17 @@ class Sql_Test:
         before = time
         self.mssql_engine.execute("select * from {} where number between {} and {}".format(table_name, value_from, value_to))
         after = time()
-        print("Время исполнения запроса между значениями в MSSQL  ", after - before, "s")
+        print("Время исполнения запроса между значениями {} и {} в MSSQL  ".format(value_from, value_to), after - before, "s")
 
         before = time()
         self.mysql_engine.execute("select * from {} where number between {} and {}".format(table_name, value_from, value_to))
         after = time()
-        print("Время исполнения запроса между значениями в Mysql  ", after - before, "s")
+        print("Время исполнения запроса между значениями {} и {} в Mysql  ".format(value_from, value_to), after - before, "s")
 
         before = time()
         self.postgres_engine.execute("select * from {} where number between {} and {}".format(table_name, value_from, value_to))
         after = time()
-        print("Время исполнения запроса между значениями в Postgres  ", after - before, "s")
+        print("Время исполнения запроса между значениями {} и {} в Postgres  ".format(value_from, value_to), after - before, "s")
 
     def select_number_where(self, table_name, value):
         """
@@ -351,50 +306,39 @@ class Sql_Test:
         before = time
         self.mssql_engine.execute("select * from {} where number ={}".format(table_name, value))
         after = time()
-        print("Время исполнения запроса  в MSSQL  ", after - before, "s")
+        print("Время исполнения запроса знечение где number равен к {} в MSSQL   ".format(value), after - before, "s")
 
         before = time()
         self.mysql_engine.execute("select * from {} where number =  {}".format(table_name, value))
         after = time()
-        print("Время исполнения запроса в Mysql  ", after - before, "s")
+        print("Время исполнения запроса в где number равен к {}  Mysql  ".format(value), after - before, "s")
 
         before = time()
         self.postgres_engine.execute("select * from {} where number= {}".format(table_name, value))
         after = time()
-        print("Время исполнения запроса в Postgres  ", after - before, "s")
+        print("Время исполнения запроса в Postgres где number равен к {} ".format(value), after - before, "s")
 
-    def time_thing(self, connect_to_database, des="Отправка запроса на MSSQL SERVER начало времени"):
+    def in_both_table_number(self, table_name1, table_name2):
         """
-        dont work!!!!
-        :param connect_to_database:
-        :param des:
+        output where in two table have a value similar
+        :param table_name1:
+        :param table_name2:
         :return:
         """
-        print("Running %s " % des, time.time())
-        now = time.time()
-
-        try:
-            ret = connect_to_database()
-            return ret
-        finally:
-            spent = time.time() - now
-            print("Finished %s, took %d seconds" % (des, spent))
-
-    def in_both_table_number(self,table_name1, table_name2):
         before = time
         self.mssql_engine.execute("select *from {} as d, {} as t where d.number = t.number".format(table_name1,table_name2))
         after = time()
-        print("Время исполнения запроса  в MSSQL  ", after - before, "s")
+        print("Время исполнения запроса присутствующие в обоих таблицах в MSSQL   ", after - before, "s")
 
         before = time()
         self.mysql_engine.execute("select *from {} as d, {} as t where d.number = t.number".format(table_name1,table_name2))
         after = time()
-        print("Время исполнения запроса в Mysql  ", after - before, "s")
+        print("Время исполнения запроса присутствующие в обоих таблицах в Mysql  ", after - before, "s")
 
         before = time()
         self.postgres_engine.execute("select *from {} as d, {} as t where d.number = t.number".format(table_name1,table_name2))
         after = time()
-        print("Время исполнения запроса в Postgres  ", after - before, "s")
+        print("Время исполнения запроса присутствующие в обоих таблицах в Postgres  ", after - before, "s")
 
     def choose_sql_server_name(self, sql_server_name, sql_server_name2=None):
         """
@@ -411,14 +355,13 @@ class Sql_Test:
 
 
 if __name__ == '__main__':
+    TABLE_NAME = 'new_table'
     server = Sql_Test()
-    # server.create_table_for_all_server(sql_server='mysql', table_name1='sam', max_value=10000, max_row=100,unique_count_value=10)
-    server.create_table_for_all_server(sql_server='postgresql', table_name1='dam', max_value=10000, max_row=100,unique_count_value=10)
-    # server.create_table_for_all_server(sql_server='mssql', table_name1='dam', max_value=10000, max_row=100,unique_count_value=10)
+    server.create_table_for_all_server(sql_server='mysql', table_name1=TABLE_NAME, max_value=10000, max_row=100, unique_count_value=10)
+    server.create_table_for_all_server(sql_server='postgresql', table_name1=TABLE_NAME, max_value=10000, max_row=100, unique_count_value=10)
+    server.create_table_for_all_server(sql_server='mssql', table_name1=TABLE_NAME, max_value=10000, max_row=100, unique_count_value=10)
 
-    # server.insert_psql('famile')
-    # server.insert_mssql('famile')
-    # server.insert_mysql('famile')
-
-# loop = asyncio.get_event_loop()
-# loop.run_until_complete(connect_to_database())
+    # server.select_from_to(1221, 2000,TABLE_NAME)
+    # server.select_max_table(TABLE_NAME)
+    # server.select_number_where(TABLE_NAME,344)
+    # server.in_both_table_number(TABLE_NAME, TABLE_NAME+"1")
