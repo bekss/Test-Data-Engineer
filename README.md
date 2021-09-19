@@ -6,7 +6,7 @@
 ##### pipenv lock
 ##### pipenv sync
 ## Нужно настороить окружение .env
-DATABASE = your own database
+DATABASE = your own database  
 HOST = your own host  #default  127.0.0.1
 
 
