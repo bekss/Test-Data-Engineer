@@ -7,6 +7,12 @@ name = "pypi"
 sqlalchemy = "*"
 asyncpg = "*"
 python-dotenv = "*"
+pyodbc = "*"
+pandas = "*"
+psycopg2 = "*"
+pymysql = "*"
+cryptography = "*"
+faker = "*"
 
 [dev-packages]
 
