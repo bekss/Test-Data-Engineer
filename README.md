@@ -1,6 +1,6 @@
 Тестовое задание на позицию Test Data Engineer.
 ### ODBC driver for mssql version(13..17) sql server install here:  
-https://clck.ru/YVPN2 or 
+https://clck.ru/YVPN2 
 ### pipenv  
 ##### pip install pipenv  
 ##### pipenv shell
